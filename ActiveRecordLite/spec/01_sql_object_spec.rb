@@ -1,5 +1,6 @@
 require '01_sql_object'
 require 'securerandom'
+require 'pry'
 
 describe SQLObject do
   before(:each) { DBConnection.reset }
@@ -38,12 +39,6 @@ describe SQLObject do
       expect(c.respond_to? :name).to be true
       expect(c.respond_to? :id).to be true
       expect(c.respond_to? :owner_id).to be true
-    end
-
-    it '::columns created getter methods read from attributes hash' do
-      c = Cat.new
-      c.instance_variable_set(:@attributes, {name: "Nick Diaz"})
-      expect(c.name).to eq 'Nick Diaz'
     end
 
     it '::columns creates setter methods for each column' do
@@ -85,7 +80,7 @@ describe SQLObject do
         { name: 'cat1', owner_id: 1 },
         { name: 'cat2', owner_id: 2 }
       ]
-
+      
       cats = Cat.parse_all(hashes)
       expect(cats.length).to eq(2)
       hashes.each_index do |i|
