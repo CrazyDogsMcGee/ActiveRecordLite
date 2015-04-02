@@ -42,10 +42,18 @@ class SQLObject
       FROM
         #{self.table_name}
     SQL
+    
+    self.parse_all(table_data)
   end
 
   def self.parse_all(results)
-    r
+    all_instances = []
+    
+    results.each do |hash|
+      all_instances.push(self.new(hash))
+    end
+    
+    all_instances
   end
 
   def self.find(id)
@@ -53,7 +61,7 @@ class SQLObject
 
   def initialize(params = {})
     db_column = self.class.columns
-    
+    binding.pry
     params.each do |key, val|
       unless db_column.include?(key)
         raise "unknown attribute '#{key}'"

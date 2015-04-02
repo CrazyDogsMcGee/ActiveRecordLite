@@ -34,13 +34,13 @@ class DBConnection
   def self.execute(*args)
     puts args[0]
 
-    instance.execute(*args)
+    instance.execute(*args) #returns db query
   end
 
   def self.execute2(*args)
     puts args[0]
 
-    instance.execute2(*args)
+    instance.execute2(*args) #returns db query, PLUS the names of the columns as the first column
   end
 
   def self.last_insert_row_id
