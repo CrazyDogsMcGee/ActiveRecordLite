@@ -57,19 +57,30 @@ class SQLObject
   end
 
   def self.find(id)
+    query = DBConnection.execute(<<-SQL, id)
+      SELECT
+        *
+      FROM
+        #{self.table_name}
+      WHERE
+        id = ?
+    SQL
+    
+    return self.parse_all(query).first
   end
 
   def initialize(params = {})
     db_column = self.class.columns
-    binding.pry
+    
     params.each do |key, val|
-      unless db_column.include?(key)
+      unless db_column.include?(key.to_sym)
         raise "unknown attribute '#{key}'"
       end
     end
     
     params.each do |key,val|
-      eq_method = (key.to_s.concat("=")).to_sym
+      method_sym = key
+      eq_method = (method_sym.to_s + "=").to_sym
       self.send(eq_method, val)
     end
   end
@@ -79,19 +90,40 @@ class SQLObject
   end
 
   def attribute_values
-    # ...
+    column_names = self.class.columns
+    attributes = column_names.map {|attr_name| self.send(attr_name)}
+    return attributes
   end
 
   def insert
-    # ...
+    column_names = self.class.columns[1..-1].join(",")
+    attributes = (["?"] * @attributes.length).join(",")
+    
+    DBConnection.execute(<<-SQL, *attribute_values[1..-1])
+      INSERT INTO
+        #{self.class.table_name} (#{column_names})
+      VALUES
+        (#{attributes})
+    SQL
+    
+    self.send(:id=, DBConnection.last_insert_row_id)
   end
 
   def update
-    # ...
+    eql_attrs = self.class.columns[1..-1].map {|attr| "#{attr}=?"}.join(",")
+#
+    DBConnection.execute(<<-SQL, *attribute_values[1..-1], attribute_values[0])
+      UPDATE
+        #{self.class.table_name}
+      SET
+        #{eql_attrs}
+      WHERE
+        id = ?
+    SQL
   end
 
   def save
-    # ...
+    self.id.nil? ? self.insert : self.update
   end
   
 end
