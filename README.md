@@ -445,6 +445,8 @@ options = BelongsToOptions.new(:owner, :class_name => "Human")
 options.model_class # => Human
 # should call `Human::table_name`
 options.table_name # => "humans"
+
+
 Phase IIIb: belongs_to, has_many
 
 Begin writing a belongs_to method for Associatable. This method should take in the association name and an options hash. It should build a BelongsToOptions object; save this in a local variable named options.
@@ -493,6 +495,7 @@ JOIN
   houses ON humans.house_id = houses.id
 WHERE
   humans.id = ?
+  
 Phase IVa: storing AssocOptions
 
 has_one_through is going to need to make a join query that uses and combines the options (table_name, foreign_key, primary_key) of the two constituent associations. This requires us to store the options of a belongs_to association so that has_one_through can later reference these to build a query.
@@ -509,6 +512,7 @@ human_options = Cat.assoc_options[:human]
 human_options.foreign_key # => :owner_id
 human_options.class_name # => "Human"
 human_options.primary_key # => :id
+
 Part IVb: writing has_one_through
 
 Okay, now that we are saving the BelongsToOptions, we can access them later to build the has_one_through(name, through_name, source_name) query.
@@ -517,6 +521,7 @@ As before, use define_method to define a method that will fetch the associated o
 
 Lookup through_name in assoc_options; call this through_options.
 Using through_options.model_class, lookup source_name in assoc_options; call this source_options.
+
 Why can we not lookup source_name in self.class.assoc_options?
 Once you have these two sets of options, it's time to write the query. Look at the above sample query to inspire your building of the query from the constituent association options.
 
@@ -538,6 +543,7 @@ module Associatable
     end
   end
 end
+
 Why is this bad? Let's see:
 
 class Cat < SQLObject
@@ -551,7 +557,8 @@ end
 class Human < SQLObject
   # ...
 end
-The problem is that at the time we call has_one_through in Cat, we haven't yet defined the Human class. But has_one_through calls through_options.model_class, which is going to try to call "Human".constantize. This will fail, because Human is not defined yet.
+
+The problem is that at the time we call has_one_through in Cat, we haven't' yet defined the Human class. But has_one_through calls through_options.model_class, which is going to try to call "Human".constantize. This will fail, because Human is not defined yet.
 
 The solution to this problem is to move the fetching of the options inside the defined method. Presumably someone will only call cat.house after the declaration of both Human and House classes. That means that at the time #house is called, has_one_through will be able to constantize "Human" and "House" successfully.
 
