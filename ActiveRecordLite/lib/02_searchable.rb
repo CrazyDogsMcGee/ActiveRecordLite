@@ -1,5 +1,6 @@
 require_relative 'db_connection'
 require_relative '01_sql_object'
+require_relative '05_relation'
 
 module Searchable
   
@@ -17,10 +18,12 @@ module Searchable
     SQL
     
     return self.parse_all(query_result)
+    
+    #Relation.new(where_conditions, queries, self)
   end
   
 end
 
 class SQLObject
-  extend Searchable #Use extend for class methods. Module becomes class methods
+  extend Searchable
 end

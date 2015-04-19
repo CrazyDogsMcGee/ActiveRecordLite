@@ -25,8 +25,9 @@ describe 'Searchable' do
     expect(cat.name).to eq('Breakfast')
   end
 
-  it '#where can return multiple objects' do
+  it '#where can return multiple objects' do 
     humans = Human.where(house_id: 1)
+    binding.pry
     expect(humans.length).to eq(2)
   end
 
