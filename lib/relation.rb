@@ -20,7 +20,7 @@ class Relation
   end
   
   def inspect
-    query_result = DBConnection.execute(<<-SQL, *attr_name)
+    query_result = DBConnection.execute(<<-SQL, *@attrs)
       SELECT
         *
       FROM

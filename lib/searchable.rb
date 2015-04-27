@@ -1,6 +1,6 @@
 require_relative 'db_connection'
-require_relative '01_sql_object'
-require_relative '05_relation'
+require_relative 'sql_object'
+require_relative 'relation'
 
 module Searchable
   
@@ -20,6 +20,13 @@ module Searchable
     return self.parse_all(query_result)
     
     #Relation.new(where_conditions, queries, self)
+  end
+  
+  def where2(params)
+    queries = params.values
+    where_conditions = params.keys.map {|attr| "#{attr} = ?"}
+    
+    Relation.new(where_conditions, queries, self)
   end
   
 end
