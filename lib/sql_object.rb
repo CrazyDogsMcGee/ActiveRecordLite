@@ -111,7 +111,7 @@ class SQLObject
 
   def update
     eql_attrs = self.class.columns[1..-1].map {|attr| "#{attr}=?"}.join(",")
-#
+
     DBConnection.execute(<<-SQL, *attribute_values[1..-1], attribute_values[0])
       UPDATE
         #{self.class.table_name}

@@ -18,7 +18,7 @@ class DBConnection
   def self.reset
     commands = [
       "rm '#{CATS_DB_FILE}'",
-      "cat '#{CATS_SQL_FILE}' | sqlite3 '#{CATS_DB_FILE}'"
+      "cat '#{CATS_SQL_FILE}' | sqlite3 '#{CATS_DB_FILE}'"  #pipes contents of cats.sql to a new cat.db in sqlite
     ]
 
     commands.each { |command| `#{command}` }
@@ -45,10 +45,5 @@ class DBConnection
 
   def self.last_insert_row_id
     instance.last_insert_row_id
-  end
-
-  private
-
-  def initialize(db_file_name)
   end
 end

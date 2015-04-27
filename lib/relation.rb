@@ -1,5 +1,5 @@
 class Relation
-  #Should this class have all the array methods?
+
   def initialize(stored_query, queries, table_name)
     @attr_names = stored_query
     @attrs = queries
