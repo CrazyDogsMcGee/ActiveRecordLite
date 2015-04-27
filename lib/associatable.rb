@@ -35,6 +35,10 @@ class HasManyOptions < AssocOptions
 end
 
 module Associatable
+  def assoc_options
+    @assoc_options ||= {} #holds configuration options for each other model associated with SQL object
+  end
+  
   def belongs_to(name, options = {})
     assoc_options[name] = BelongsToOptions.new(name.to_s, options)
     belongs_to_options = assoc_options[name]
@@ -47,17 +51,34 @@ module Associatable
 
   def has_many(name, options = {})
     assoc_options[name] = HasManyOptions.new(name.to_s, self.to_s, options)
-    has_many_options = assoc_options[name]
+    has_many_options = assoc_options[name] #object that has references to foreign keys, primary key, model
     
     define_method(name) {
       foreign_key = self.id
       has_many_options.model_class.where(has_many_options.foreign_key => foreign_key)
     }
   end
-
-  def assoc_options
-    @assoc_options ||= {}
+  
+  def has_one_through(name, through_name, source_name)
+    define_method(name) {
+      through_options = self.class.assoc_options[through_name] #Gets assoc options object for intermediary (through) class
+      source_options = through_options.model_class.assoc_options[source_name] #Gets assoc_options for intermediary class, finds assoc_options for source class name.
+      
+      query = DBConnection.execute(<<-SQL, self.send(through_options.foreign_key))
+        SELECT
+          #{source_options.table_name}.*
+        FROM
+          #{through_options.table_name}
+        JOIN
+          #{source_options.table_name} ON #{through_options.table_name}.#{source_options.foreign_key} = #{source_options.table_name}.id
+        WHERE
+          #{through_options.table_name}.id = ?
+      SQL
+      
+      source_options.model_class.parse_all(query).first
+      }
   end
+
 end
 
 class SQLObject

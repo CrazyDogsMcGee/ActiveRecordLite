@@ -3,7 +3,6 @@ require_relative 'sql_object'
 require_relative 'relation'
 
 module Searchable
-  
   def where(params)
     queries = params.values
     where_conditions = params.keys.map {|attr| "#{attr} = ?"}
@@ -18,8 +17,6 @@ module Searchable
     SQL
     
     return self.parse_all(query_result)
-    
-    #Relation.new(where_conditions, queries, self)
   end
   
   def where2(params)
@@ -32,5 +29,5 @@ module Searchable
 end
 
 class SQLObject
-  extend Searchable
+  extend Searchable #'extend' gives methods to class
 end

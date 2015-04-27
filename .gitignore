@@ -1,3 +1,5 @@
 *.db
 *.txt
 .codio
+
+associatable2.rb

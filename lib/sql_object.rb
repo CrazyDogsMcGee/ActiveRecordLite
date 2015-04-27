@@ -14,7 +14,7 @@ class SQLObject
     table_data[0].map {|name| name.to_sym}
   end
 
-  def self.finalize!
+  def self.finalize! #Creates getters & setters
     self.columns.each do |method|
       string_name = method.to_s
       inst_var = "@".concat(string_name).to_sym
@@ -26,7 +26,7 @@ class SQLObject
     end    
   end
 
-  def self.table_name=(table_name)
+  def self.table_name=(table_name) #allows table name to be overwritten if "humans" problem occurs
     @table_name = table_name
   end
 
@@ -44,16 +44,6 @@ class SQLObject
     SQL
     
     self.parse_all(table_data)
-  end
-
-  def self.parse_all(results)
-    all_instances = []
-    
-    results.each do |hash|
-      all_instances.push(self.new(hash))
-    end
-    
-    all_instances
   end
 
   def self.find(id)
@@ -89,12 +79,28 @@ class SQLObject
     @attributes ||= {}
   end
 
+  def save
+    self.id.nil? ? self.insert : self.update
+  end
+    
+  protected
+    
+  def self.parse_all(results)
+    all_instances = []
+    
+    results.each do |hash|
+      all_instances.push(self.new(hash))
+    end
+    
+    all_instances
+  end
+  
   def attribute_values
     column_names = self.class.columns
     attributes = column_names.map {|attr_name| self.send(attr_name)}
     return attributes
   end
-
+  
   def insert
     column_names = self.class.columns[1..-1].join(",")
     attributes = (["?"] * @attributes.length).join(",")
@@ -104,11 +110,11 @@ class SQLObject
         #{self.class.table_name} (#{column_names})
       VALUES
         (#{attributes})
-    SQL
+      SQL
     
-    self.send(:id=, DBConnection.last_insert_row_id)
+      self.send(:id=, DBConnection.last_insert_row_id)
   end
-
+      
   def update
     eql_attrs = self.class.columns[1..-1].map {|attr| "#{attr}=?"}.join(",")
 
@@ -119,13 +125,9 @@ class SQLObject
         #{eql_attrs}
       WHERE
         id = ?
-    SQL
-  end
+      SQL
+    end
 
-  def save
-    self.id.nil? ? self.insert : self.update
-  end
-  
 end
 
 
