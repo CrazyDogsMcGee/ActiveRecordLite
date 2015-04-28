@@ -22,7 +22,7 @@ a database item. The SQLObject::finalize! method is also important as it defines
 splitting the argument paramters provided and turning the key-value attribute pairs to SQL to be used in a query. The "where2" method returns an instance of a "Relation"
 object that is meant to have chainable queries. (See 'Relation')
 
-### Associtable
+### Associatable
 The "Associatable" module adds functionality to access database relations through referencing foreign keys and table joins in an SQL query. Like ActiveRecord for rails,
 specifying "belongs_to" and "has_many" in the object class will automatically create all references to foreign keys and model names unless they are specified in the arguments
 provided to the function. These references are stored in a "BelongsToOptions" or "HasManyOptions" object, which is used run an SQL query to fetch the correct information.
@@ -31,6 +31,7 @@ the model defined.
 
 For a model "Cat" where:
 
+````
 class Cat < SQLObject
   has_many :toys
   
@@ -38,15 +39,18 @@ class Cat < SQLObject
   
   has_one_through :home, :human, :house
 end
+````
 
 The instance variable "@assoc_options" for Cat would look like this:
 
+````
 {
-toys: #<BelongsToOptions:0x0300c868 @foreign_key=:toy_id, @class_name=Toy, @id=:id>
-human: #<HasManyOptions:0x0300c868 @foreign_key=:human_id, @class_name=Human, @id=:id>
+toys: <BelongsToOptions:0x0300c868 @foreign_key=:toy_id, @class_name=Toy, @id=:id>
+human: <HasManyOptions:0x0300c868 @foreign_key=:human_id, @class_name=Human, @id=:id>
 }
 
-(The has_one_through method would simply use the options specified for human (and ON human) to make the query for the house)
+#The has_one_through method would simply use the options specified for human (and ON human) to make the query for the house
+````
 
 And each of these objects would be invoked for the respective "Cat.toys" and "Cat.human" calls.
 
